@@ -40,6 +40,8 @@ var keySpace = false;
 var keySpaceAlt = false;
 var keyCtrl = false;
 
+var currentColor = { r: 255, g: 0, b: 0 };
+
 i.PublicMethod("on_tick", /*none*/() => { onTick() });
 i.PublicMethod("stop_timer", /*none*/() => { stopTimer() });
 i.PublicMethod("start_timer", /*none*/() => { startTimer() });
@@ -86,6 +88,7 @@ function DestroyHud() { i.EntFireAtName("hudDisplay", "Kill") };
 
 function onTick() {
     printTimerToHud();
+    if (oldPlayerPos != playerPos) SpawnTrail();
     if (playerJumped) ticksInAir++;
     if (!timerStopped) timerTicks++;
     oldPlayerPos = playerPos;
@@ -299,4 +302,37 @@ function toggleKeys() {
 function onVelo(v) {
     v = v.toFixed(2).toString().padStart(6, '0');
     playerVel = v;
+}
+
+function SpawnTrail() {
+    SendCommand(`box  ${oldPlayerPos} ${playerPos} 3 ${currentColor.r} ${currentColor.g} ${currentColor.b}`);
+    nextRainbowColor();
+}
+
+function nextRainbowColor() {
+    var r = currentColor.r;
+    var g = currentColor.g;
+    var b = currentColor.b;
+
+    var step = 5;
+
+    if (r === 255 && g < 255 && b === 0) {
+        g += step;
+    } else if (g === 255 && r > 0 && b === 0) {
+        r -= step;
+    } else if (g === 255 && b < 255 && r === 0) {
+        b += step;
+    } else if (b === 255 && g > 0 && r === 0) {
+        g -= step;
+    } else if (b === 255 && r < 255 && g === 0) {
+        r += step;
+    } else if (r === 255 && b > 0 && g === 0) {
+        b -= step;
+    }
+
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+    currentColor = { r: r, g: g, b: b };
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
 }
