@@ -239,9 +239,14 @@ function calculateDistance(playerJumpedPos, playerLandedPos) {
 
     if (jumpComponents.length !== 3 || landComponents.length !== 3) {
         i.Msg('Invalid vector string format');
+        return;
     }
 
-    const distance = Math.sqrt(Math.pow(landComponents[0] - jumpComponents[0], 2) + Math.pow(landComponents[1] - jumpComponents[1], 2) + Math.pow(landComponents[2] - jumpComponents[2], 2));
+    const distance = Math.sqrt(
+        Math.pow(landComponents[0] - jumpComponents[0], 2) + // x component
+        Math.pow(landComponents[1] - jumpComponents[1], 2)   // y component
+    );
+
     return distance;
 }
 
