@@ -195,7 +195,6 @@ function respawn() {
 }
 
 function onPlayerJump() {
-    keySpaceAlt = true;
     playerPreVel = playerVel;
     playerJumped = true;
     playerJumpedPos = oldPlayerPos;
@@ -214,7 +213,7 @@ function onPlayerSound() {
 
         if (playerJumpedPos != null && playerLandedPos != null) {
             const distance = calculateDistance(playerJumpedPos, playerLandedPos);
-            if (distance > 100 && ticksInAir > 5 && timerStopped) SendCommand(`say LJ: ${distance.toFixed(2)} | Pre: ${playerPreVel}`);
+            if (distance != null && distance > 100 && ticksInAir > 5 && timerStopped) SendCommand(`say 2D Distance: ${distance.toFixed(2)} | Pre: ${playerPreVel}`);
         }
         ticksInAir = 0;
         playerJumped = false;
