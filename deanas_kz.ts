@@ -31,15 +31,6 @@ var playerJumpedPos = null;
 var playerLandedPos = null;
 var ticksInAir = 0;
 
-var keysEnabled = false;
-var keyW = false;
-var keyS = false;
-var keyA = false;
-var keyD = false;
-var keySpace = false;
-var keySpaceAlt = false;
-var keyCtrl = false;
-
 var currentColor = { r: 255, g: 0, b: 0 };
 
 i.PublicMethod("on_tick", /*none*/() => { onTick() });
@@ -55,30 +46,10 @@ i.PublicMethod("start_timerb3", /*none*/() => { startTimer(3) });
 i.PublicMethod("on_jump", /*none*/() => { onPlayerJump() });
 i.PublicMethod("on_spawn", /*none*/() => { onPlayerSpawn() });
 i.PublicMethod("on_sound", /*none*/() => { onPlayerSound() });
-i.PublicMethod("on_velo", /*number*/(v) => { onVelo(v) });
 
 i.PublicMethod("kz_cp", /*none*/() => { saveCheckpoint() });
 i.PublicMethod("kz_tp", /*none*/() => { loadCheckpoint() });
 i.PublicMethod("kz_r", /*none*/() => { respawn() });
-i.PublicMethod("kz_keys", /*none*/() => { toggleKeys() });
-
-i.PublicMethod("p_kz_w", /*none*/() => { keyPress("w") });
-i.PublicMethod("r_kz_w", /*none*/() => { keyRelease("w") });
-
-i.PublicMethod("p_kz_a", /*none*/() => { keyPress("a") });
-i.PublicMethod("r_kz_a", /*none*/() => { keyRelease("a") });
-
-i.PublicMethod("p_kz_s", /*none*/() => { keyPress("s") });
-i.PublicMethod("r_kz_s", /*none*/() => { keyRelease("s") });
-
-i.PublicMethod("p_kz_d", /*none*/() => { keyPress("d") });
-i.PublicMethod("r_kz_d", /*none*/() => { keyRelease("d") });
-
-i.PublicMethod("p_kz_space", /*none*/() => { keyPress("space") });
-i.PublicMethod("r_kz_space", /*none*/() => { keyRelease("space") });
-
-i.PublicMethod("p_kz_ctrl", /*none*/() => { keyPress("ctrl") });
-i.PublicMethod("r_kz_ctrl", /*none*/() => { keyRelease("ctrl") });
 
 function EntFireAtName(targetname, key, value = "", delay = 0) { i.EntFireAtName(targetname, key, value, delay) };
 function SendCommand(message, delay = 0) { i.EntFireAtName("sv", "Command", `${message}`, delay) };
@@ -93,14 +64,31 @@ function onTick() {
     if (!timerStopped) timerTicks++;
     oldPlayerPos = playerPos;
     playerPos = i.GetEntityOrigin(i.GetPlayerPawn(0)).toString().replace(/,/g, ' ');
+    if (oldPlayerPos != null) playerVel = calculateVelocity(oldPlayerPos, playerPos);
+
+    function calculateVelocity(oldPos, newPos) {
+        const oldComponents = oldPos.split(' ').map(parseFloat);
+        const newComponents = newPos.split(' ').map(parseFloat);
+
+        if (oldComponents.length !== 3 || newComponents.length !== 3) {
+            i.Msg('Invalid vector string format');
+        }
+
+        const velocityX = (newComponents[0] - oldComponents[0]) / 0.015625;
+        const velocityY = (newComponents[1] - oldComponents[1]) / 0.015625;
+        const velocity2D = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+        const roundedVelocity2D = velocity2D.toFixed(2).padStart(6, '0');
+
+        return roundedVelocity2D;
+    }
+
     EntFireAtName("kz_script", "on_tick", "", 0.015625);
 }
 
 function printTimerToHud() {
     DestroyHud();
-    CreateHud(`${!timerStopped ? `${currentZone} ${formatTime(timerTicks)} | CPs: ${cpNum} | TPs: ${tpNum} \r` : ""} ${playerVel} (${playerPreVel}) ${keysEnabled ? `\r ${keyW ? "W" : "_"} ${keyA ? "A" : "_"} ${keyS ? "S" : "_"} ${keyD ? "D" : "_"} ${keySpace || keySpaceAlt ? "J" : "_"} ${keyCtrl ? "C" : "_"}` : ""}`);
+    CreateHud(`${!timerStopped ? `${currentZone} ${formatTime(timerTicks)} | CPs: ${cpNum} | TPs: ${tpNum} \r` : ""} ${playerVel} (${playerPreVel})`);
     ShowHud();
-    if(keySpaceAlt) keySpaceAlt = false;
 }
 
 function stopTimer(zone = 0) {
@@ -243,70 +231,11 @@ function calculateDistance(playerJumpedPos, playerLandedPos) {
     }
 
     const distance = Math.sqrt(
-        Math.pow(landComponents[0] - jumpComponents[0], 2) + // x component
-        Math.pow(landComponents[1] - jumpComponents[1], 2)   // y component
+        Math.pow(landComponents[0] - jumpComponents[0], 2) +
+        Math.pow(landComponents[1] - jumpComponents[1], 2)
     );
 
     return distance;
-}
-
-function keyPress(key) {
-    switch (key) {
-        case "w":
-            keyW = true;
-            break;
-        case "a":
-            keyA = true;
-            break;
-        case "s":
-            keyS = true;
-            break;
-        case "d":
-            keyD = true;
-            break;
-        case "space":
-            keySpace = true;
-            break;
-        case "ctrl":
-            keyCtrl = true;
-            break;
-        default:
-            break;
-    }
-};
-
-function keyRelease(key) {
-    switch (key) {
-        case "w":
-            keyW = false;
-            break;
-        case "a":
-            keyA = false;
-            break;
-        case "s":
-            keyS = false;
-            break;
-        case "d":
-            keyD = false;
-            break;
-        case "space":
-            keySpace = false;
-            break;
-        case "ctrl":
-            keyCtrl = false;
-            break;
-        default:
-            break;
-    }
-};
-
-function toggleKeys() {
-    keysEnabled = !keysEnabled;
-}
-
-function onVelo(v) {
-    v = v.toFixed(2).toString().padStart(6, '0');
-    playerVel = v;
 }
 
 function SpawnTrail() {
