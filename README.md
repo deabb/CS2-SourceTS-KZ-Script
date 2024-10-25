@@ -6,8 +6,6 @@ A simple KZ source_ts script for Counter-Strike 2
 
 * Timer
   * Includes Bonus zones
-* Keys on HUD
-  * toggle using the `kz_keys` command (i recommend to check the kz.cfg to make sure it wont mess up your binds)
 * Checkpoints
 * Respawns
 * Bindable commands
@@ -17,12 +15,15 @@ A simple KZ source_ts script for Counter-Strike 2
 * Very Basic Long Jump Stats
 * Velocity
   * With Pre
+* Rainbow player trail
+* Hide Legs
 
 ### Usage
 
-* Download this [repo](https://gitlab.com/dea_bb/deanas-kz-script/-/archive/main/deanas-kz-script-main.zip)
-* Place `deanas_kz.vts_c` and `kz.cfg` into `Counter-Strike Global Offensive/game/csgo/cfg/`
+* Download this [repo](https://codeload.github.com/deabb/CS2-SourceTS-KZ-Script/zip/refs/heads/main)
+* Place `deanas_kz.vts_c`, `kz.cfg` and `vnl.cfg` into `Counter-Strike Global Offensive/game/csgo/cfg/`
 * Boot up a supported KZ Workshop map (most map designed to be hosted on a community server will work)
+  * Valve maps will work too just without timer
 * Open your console and use `sv_cheats 1; exec_async kz`
 * Wait for the script to load c:
 
